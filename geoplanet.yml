@@ -1,0 +1,73 @@
+---
+- !ruby/object:GeoPlanet::Place
+  version: short
+  woeid: 55848339
+  placetype: Colloquial
+  placetype_code: 24
+  name: Shinetsu Region
+  uri: http://where.yahooapis.com/v1/place/55848339
+  lang: en-US
+- !ruby/object:GeoPlanet::Place
+  version: short
+  woeid: 28595946
+  placetype: Colloquial
+  placetype_code: 24
+  name: Koshinetsu Region
+  uri: http://where.yahooapis.com/v1/place/28595946
+  lang: en-US
+- !ruby/object:GeoPlanet::Place
+  version: short
+  woeid: 24865697
+  placetype: Colloquial
+  placetype_code: 24
+  name: Tohoku Region
+  uri: http://where.yahooapis.com/v1/place/24865697
+  lang: en-US
+- !ruby/object:GeoPlanet::Place
+  version: short
+  woeid: 28595947
+  placetype: Colloquial
+  placetype_code: 24
+  name: Hokuriku Region
+  uri: http://where.yahooapis.com/v1/place/28595947
+  lang: en-US
+- !ruby/object:GeoPlanet::Place
+  version: short
+  woeid: 24865690
+  placetype: Colloquial
+  placetype_code: 24
+  name: Chubu Region
+  uri: http://where.yahooapis.com/v1/place/24865690
+  lang: en-US
+- !ruby/object:GeoPlanet::Place
+  version: short
+  woeid: 28595948
+  placetype: Colloquial
+  placetype_code: 24
+  name: Chukyo Region
+  uri: http://where.yahooapis.com/v1/place/28595948
+  lang: en-US
+- !ruby/object:GeoPlanet::Place
+  version: short
+  woeid: 24865694
+  placetype: Colloquial
+  placetype_code: 24
+  name: Kansai Region
+  uri: http://where.yahooapis.com/v1/place/24865694
+  lang: en-US
+- !ruby/object:GeoPlanet::Place
+  version: short
+  woeid: 24865692
+  placetype: Colloquial
+  placetype_code: 24
+  name: Hokkaido Region
+  uri: http://where.yahooapis.com/v1/place/24865692
+  lang: en-US
+- !ruby/object:GeoPlanet::Place
+  version: short
+  woeid: 24865695
+  placetype: Colloquial
+  placetype_code: 24
+  name: Kyushu Region
+  uri: http://where.yahooapis.com/v1/place/24865695
+  lang: en-US
