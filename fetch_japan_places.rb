@@ -19,9 +19,10 @@ end
 
 def get_children_tree(place, parent)
   $place_num += 1
-  puts "fetching : " + place.name
+  puts "fetching : " + place.name + ", " + place.placetype
   puts "place num : " + $place_num.to_s
-  children = place.children(type: [7, 8, 9, 10], count:0, lang:'ja')
+  # children = place.children(type: [7, 8, 9, 10], count:0, lang:'ja')
+  children = place.children(type: [7, 8], count:0, lang:'ja')
   yml = place_to_yml(place, parent, children)
   if children
     children.each do |c|
