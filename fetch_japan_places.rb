@@ -18,18 +18,17 @@ def place_to_yml(place, parent, children)
 end
 
 def get_children_tree(place, parent)
-  yml = {}
   $place_num += 1
   puts "fetching : " + place.name
-  puts "place num : " + $place_num
+  puts "place num : " + $place_num.to_s
   children = place.children(type: [7, 8, 9, 10], count:0, lang:'ja')
-  yml.merge!(place_to_yml(place, parent, children))
+  yml = place_to_yml(place, parent, children)
   if children
     children.each do |c|
       yml.merge!(get_children_tree(c, place))
     end
   end
-  yml
+  return yml
 end
 
 GeoPlanet.appid = ENV['APPID']
