@@ -1,0 +1,1 @@
+worker: bundle exec ruby fetch_japan_places.rb
