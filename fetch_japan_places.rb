@@ -21,7 +21,8 @@ def place_to_yml_as_tree(place)
   {
     place.woeid => {
       type: place.placetype,
-      name: place.name
+      name: place.name,
+      children: {}
     }
   }
 end
@@ -49,9 +50,10 @@ def get_children_tree_as_tree_hash(place, _hash)
   children = place.children(type: [7, 8], count:0, lang:'ja')
   if children
     children.each do |c|
-      get_children_tree_as_tree_hash(c, _hash[place.woeid])
+      get_children_tree_as_tree_hash(c, _hash[place.woeid][:children])
     end
   end
+  pp _hash
 end
 
 GeoPlanet.appid = ENV['APPID']
