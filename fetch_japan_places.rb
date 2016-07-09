@@ -1,7 +1,7 @@
 require 'geoplanet'
 require 'json'
 require 'yaml'
-require 'pp'
+require 'pry'
 
 JAPAN_WOEID = 23424856
 $place_num = 0
@@ -17,52 +17,37 @@ def place_to_yml(place, parent, children)
   }
 end
 
-def place_to_yml_as_tree(place)
-  {
-    place.woeid => {
-      type: place.placetype,
-      name: place.name,
-      children: {}
-    }
-  }
-end
-
-def get_children_tree(place, parent)
+def get_children_tree(place, parent, _array, _tree)
   $place_num += 1
   puts "fetching : " + place.name + ", " + place.placetype
   puts "place num : " + $place_num.to_s
-  children = place.children(type: [7, 8, 9], count:0, lang:'ja')
-  yml = place_to_yml(place, parent, children)
+
+  children = place.children(type: [8], count:0, lang:'ja')
+
+  hash = place_to_yml(place, parent, children)
+  _array.merge!(hash)
+  # hash[place.woeid][:children] = {}
+  # _tree.merge!(hash)
+
+# binding.pry
+
   if children
     children.each do |c|
-      yml.merge!(get_children_tree(c, place))
+      # get_children_tree(c, place, _array, _tree[place.woeid][:children])
+      get_children_tree(c, place, _array, nil)
     end
   end
-  return yml
-end
-
-def get_children_tree_as_tree_hash(place, _hash)
-  $place_num += 1
-  puts "fetching : " + place.name + ", " + place.placetype
-  puts "place num : " + $place_num.to_s
-  _hash.merge!(place_to_yml_as_tree(place))
-
-  children = place.children(type: [7, 8], count:0, lang:'ja')
-  if children
-    children.each do |c|
-      get_children_tree_as_tree_hash(c, _hash[place.woeid][:children])
-    end
-  end
-  pp _hash
 end
 
 GeoPlanet.appid = ENV['APPID']
 GeoPlanet.debug = true
 
 japan = GeoPlanet::Place.new(JAPAN_WOEID, lang:'ja')
-# geo_yml = get_children_tree(japan, nil)
-geo_yml = {}
-get_children_tree_as_tree_hash(japan, geo_yml)
 
-# File.write(Dir.pwd + "/geoplanet.yml", geo_yml.to_yaml)
-File.write(Dir.pwd + "/geoplanet_tree.yml", geo_yml.to_yaml)
+array_hash = {}
+tree_hash = {}
+get_children_tree(japan, nil, array_hash, tree_hash)
+
+
+File.write(Dir.pwd + "/geoplanet.yml", array_hash.to_yaml)
+File.write(Dir.pwd + "/geoplanet_tree.yml", tree_hash.to_yaml)
