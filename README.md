@@ -3,7 +3,7 @@ sample code for Yahoo geoplanet.<br>
 https://developer.yahoo.com/geo/geoplanet/guide/
 
 ## Dependency
-gem 'geoplanet' # wrapper for GeoPlanet API.
+gem 'geoplanet' # wrapper for GeoPlanet API.<br>
 https://github.com/carlosparamio/geoplanet
 
 ## Installation
