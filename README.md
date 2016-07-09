@@ -1,8 +1,36 @@
 # my-geoplanet
-research Yahoo geoplanet API functionality
+research Yahoo geoplanet API functionality.
+https://developer.yahoo.com/geo/geoplanet/guide/
+
+## Dependency
+gem 'geoplanet': wrapper for GeoPlanet API.
+https://github.com/carlosparamio/geoplanet
+
+## Installation
+install gem 'geoplanet'
+copy 'fetch_geoplanet_place.rb' into your project.
+
+set environment variable.
+- GEOPLANET_APPID
+
+## Usage
+> ruby fetch_geoplanet_place.rb woeid filename
+
+E.g.
+> ruby fetch_geoplanet_place.rb                          # fetch Japan into "geoplanet.yml" as default
+> ruby fetch_geoplanet_place.rb 23424856 Fukushima.yml   # fetch Fukushima into "Fukushima.yml"
 
 
-### Placetype in Japan.
+### Check country
+> curl http://where.yahooapis.com/v1/countries?appid=[yourappidhere]
+
+### Check place type
+Placetype is dependent to Country so need to check before you fetching country.
+
+Eg. for Japan.
+> curl http://where.yahooapis.com/v1/placetypes/jp?appid=[yourappidhere]
+
+Response:
 {"placeTypes":{"placeType":[
   {"placeTypeName":"Undefined",
   "placeTypeName attrs":{"code":0},
