@@ -6,13 +6,13 @@ require 'pry'
 JAPAN_WOEID = 23424856
 $place_num = 0
 
-def place_to_yml(place, parent, children)
+def place_to_yml(place, parent)
   {
     place.woeid => {
       type: place.placetype,
       name: place.name,
       parent: parent ? parent.woeid : nil,
-      children: children ? children.map {|c| c.woeid} : nil
+      children: {}
     }
   }
 end
@@ -22,19 +22,15 @@ def get_children_tree(place, parent, _array, _tree)
   puts "fetching : " + place.name + ", " + place.placetype
   puts "place num : " + $place_num.to_s
 
-  children = place.children(type: [8], count:0, lang:'ja')
+  children = place.children(type: [7, 8, 9], count:0, lang:'ja')
 
-  hash = place_to_yml(place, parent, children)
+  hash = place_to_yml(place, parent)
   _array.merge!(hash)
-  # hash[place.woeid][:children] = {}
-  # _tree.merge!(hash)
-
-# binding.pry
+  _tree.merge!(hash)
 
   if children
     children.each do |c|
-      # get_children_tree(c, place, _array, _tree[place.woeid][:children])
-      get_children_tree(c, place, _array, nil)
+      get_children_tree(c, place, _array, _tree[place.woeid][:children])
     end
   end
 end
@@ -48,6 +44,4 @@ array_hash = {}
 tree_hash = {}
 get_children_tree(japan, nil, array_hash, tree_hash)
 
-
 File.write(Dir.pwd + "/geoplanet.yml", array_hash.to_yaml)
-File.write(Dir.pwd + "/geoplanet_tree.yml", tree_hash.to_yaml)
