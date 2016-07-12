@@ -2,16 +2,19 @@ require 'geoplanet'
 require 'yaml'
 require 'pry'
 
+# Constant
 JAPAN_WOEID = 23424856
 PLACE_LANGUAGE = 'ja'
 PLACE_COUNT = 0
 PLACE_TYPE = [8]
 PLACE_SELECT = 'long'
 
-place_woeid = (ARGV[0] ? ARGV[0].to_i : JAPAN_WOEID)
-file_name = (ARGV[1] ? ARGV[1] : "geoplanet.yml")
-debug_mode = (ARGV[2] ? ARGV[2] : false)
+# Argument
+place_woeid = (ARGV[0] || JAPAN_WOEID).to_i
+file_name = (ARGV[1] || "geoplanet.yml")
+debug_mode = (ARGV[2] || false)
 
+# method
 def place_to_hahs(place, parent)
   {
     place.woeid => {
@@ -48,6 +51,7 @@ def get_children_tree(place, parent, _array, _tree)
   end
 end
 
+# main
 GeoPlanet.appid = ENV['GEOPLANET_APPID']
 GeoPlanet.debug = debug_mode
 
