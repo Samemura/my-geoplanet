@@ -15,7 +15,7 @@ file_name = (ARGV[1] || "geoplanet.yml")
 debug_mode = (ARGV[2] || false)
 
 # method
-def place_to_hahs(place, parent)
+def place_to_hash(place, parent)
   {
     place.woeid => {
       type: place.placetype,
@@ -38,16 +38,15 @@ def place_to_hahs(place, parent)
 end
 
 def get_children_tree(place, parent, _array, _tree)
-  $place_num += 1
-  puts "fetching (" + $place_num.to_s + "): " + place.name + ", " + place.placetype
+  yield place if block_given?
 
-  hash = place_to_hahs(place, parent)
+  hash = place_to_hash(place, parent)
   _array.merge!(hash)
   _tree.merge!(hash)
 
   children = place.children(select: PLACE_SELECT, type: PLACE_TYPE, count: PLACE_COUNT, lang: PLACE_LANGUAGE) || []
   children.each do |c|
-    get_children_tree(c, place, _array, _tree[place.woeid][:children])
+    get_children_tree(c, place, _array, _tree[place.woeid][:children]) {|place| yield place if block_given?}
   end
 end
 
@@ -60,7 +59,10 @@ place = GeoPlanet::Place.new(place_woeid, lang:'ja')
 array_hash = {}
 tree_hash = {}
 $place_num = 0
-get_children_tree(place, nil, array_hash, tree_hash)
+get_children_tree(place, nil, array_hash, tree_hash) { |place|
+  $place_num += 1
+  puts "fetching (" + $place_num.to_s + "): " + place.name + ", " + place.placetype
+}
 
 file_path = Dir.pwd + "/" + file_name
 File.write(file_path, array_hash.to_yaml)
