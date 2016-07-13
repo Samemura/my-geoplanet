@@ -6,7 +6,7 @@ require 'pry'
 JAPAN_WOEID = 23424856
 PLACE_LANGUAGE = 'ja'
 PLACE_COUNT = 0
-PLACE_TYPE = [8]
+PLACE_TYPE = [7, 8, 9]
 PLACE_SELECT = 'long'
 
 # Argument
