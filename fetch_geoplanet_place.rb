@@ -18,25 +18,14 @@ debug_mode = (ARGV[2] || false)
 module GeoPlanet
   class Place
     def to_hash(parent)
-      {
+      hash = {
         self.woeid => {
-          type: self.placetype,
-          type_code: self.placetype_code,
-          postal: self.postal,
-          name: self.name,
-          country: self.country,
-          admin1: self.admin1,
-          admin2: self.admin2,
-          admin3: self.admin3,
-          uri: self.uri,
-          latitude: self.latitude,
-          longitude: self.longitude,
-          bounding_box: self.bounding_box,
-          area_rank: self.area_rank,
           parent: parent ? parent.woeid : nil,
           children: {}
         }
       }
+      hash[self.woeid].merge! Hash[instance_variables.map {|i| [i.to_s.sub("@", ""), instance_variable_get(i)] }]
+      return hash
     end
   end
 end
