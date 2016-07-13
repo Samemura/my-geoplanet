@@ -15,32 +15,36 @@ file_name = (ARGV[1] || "geoplanet.yml")
 debug_mode = (ARGV[2] || false)
 
 # method
-def place_to_hash(place, parent)
-  {
-    place.woeid => {
-      type: place.placetype,
-      type_code: place.placetype_code,
-      postal: place.postal,
-      name: place.name,
-      country: place.country,
-      admin1: place.admin1,
-      admin2: place.admin2,
-      admin3: place.admin3,
-      uri: place.uri,
-      latitude: place.latitude,
-      longitude: place.longitude,
-      bounding_box: place.bounding_box,
-      area_rank: place.area_rank,
-      parent: parent ? parent.woeid : nil,
-      children: {}
-    }
-  }
+module GeoPlanet
+  class Place
+    def to_hash(parent)
+      {
+        self.woeid => {
+          type: self.placetype,
+          type_code: self.placetype_code,
+          postal: self.postal,
+          name: self.name,
+          country: self.country,
+          admin1: self.admin1,
+          admin2: self.admin2,
+          admin3: self.admin3,
+          uri: self.uri,
+          latitude: self.latitude,
+          longitude: self.longitude,
+          bounding_box: self.bounding_box,
+          area_rank: self.area_rank,
+          parent: parent ? parent.woeid : nil,
+          children: {}
+        }
+      }
+    end
+  end
 end
 
 def get_children_tree(place, parent, _array, _tree)
   yield place if block_given?
 
-  hash = place_to_hash(place, parent)
+  hash = place.to_hash(parent)
   _array.merge!(hash)
   _tree.merge!(hash)
 
