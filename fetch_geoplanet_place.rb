@@ -3,11 +3,14 @@ require 'yaml'
 require 'pry'
 
 # Constant
+APPID = ENV['GEOPLANET_APPID']
+PLACE_ATTR = {
+  lang: 'ja',
+  count: 0,
+  type: [7, 8, 9],
+  select: 'long',
+}
 JAPAN_WOEID = 23424856
-PLACE_LANGUAGE = 'ja'
-PLACE_COUNT = 0
-PLACE_TYPE = [7, 8, 9]
-PLACE_SELECT = 'long'
 
 # Argument
 place_woeid = (ARGV[0] || JAPAN_WOEID).to_i
@@ -37,14 +40,14 @@ def get_children_tree(place, parent, _array, _tree)
   _array.merge!(hash)
   _tree.merge!(hash)
 
-  children = place.children(select: PLACE_SELECT, type: PLACE_TYPE, count: PLACE_COUNT, lang: PLACE_LANGUAGE) || []
+  children = place.children(PLACE_ATTR) || []
   children.each do |c|
     get_children_tree(c, place, _array, _tree[place.woeid][:children]) {|place| yield place if block_given?}
   end
 end
 
 # main
-GeoPlanet.appid = ENV['GEOPLANET_APPID']
+GeoPlanet.appid = APPID
 GeoPlanet.debug = debug_mode
 
 place = GeoPlanet::Place.new(place_woeid, lang:'ja')
