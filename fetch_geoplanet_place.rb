@@ -24,20 +24,18 @@ class MyPlace < GeoPlanet::Place
     { self.woeid => Hash[instance_variables.map {|i| [i.to_s.sub("@", ""), instance_variable_get(i)] }] }
   end
 
-  def fetch_children(*args)
-    children = (self.children(*args) || []).map{|c| c.parent = self.woeid; c}
-    @children = children.map {|c| [c.woeid, nil] }.to_h
-    return children
+  def children(*args)
+    (super(*args) || []).map{|c| c.parent = self.woeid; c}
   end
 
-  def get_children_tree
-    children = self.fetch_children(PLACE_FILTER)
+  def get_descendants
+    children = self.children(PLACE_FILTER)
+    @children = children.map {|c| [c.woeid, nil] }.to_h
+    children.each do |c|
+      c.get_descendants {|place| yield place if block_given?}
+    end
 
     yield self if block_given?
-
-    children.each do |c|
-      c.get_children_tree {|place| yield place if block_given?}
-    end
   end
 end
 
@@ -47,16 +45,15 @@ GeoPlanet.debug = debug_mode
 
 root_place = MyPlace.new(place_woeid, [PLACE_FILTER.assoc(:lang), PLACE_FILTER.assoc(:select)].to_h )
 
-array_hash = {}
+hash = {}
 $place_num = 1
-root_place.get_children_tree { |place|
+root_place.get_descendants { |place|
   puts "fetching (" + $place_num.to_s + "): " + place.name + ", " + place.placetype
-  array_hash.merge!(place.to_h)
+  hash.merge!(place.to_h)
   $place_num += 1
 }
 
-binding.pry
 file_path = Dir.pwd + "/" + file_name
-File.write(file_path, array_hash.to_yaml)
+File.write(file_path, hash.to_yaml)
 
 puts file_path + " successfully generated."
