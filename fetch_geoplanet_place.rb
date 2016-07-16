@@ -54,15 +54,18 @@ root_place = MyGeoPlanetPlace.new(
   [PLACE_FILTER.assoc(:lang), PLACE_FILTER.assoc(:select)].to_h
 )
 
+file_path = Dir.pwd + "/" + file_name
+file = File.open(file_path, 'w')
 hash = {}
 $place_num = 1
 root_place.descendants { |place_hash|
   puts "fetching (" + $place_num.to_s + "): " + place_hash.values.first["name"] + ", " + place_hash.values.first["placetype"]
   hash.merge!(place_hash)
+  file.write(place_hash.to_yaml)
   $place_num += 1
 }
-
-file_path = Dir.pwd + "/" + file_name
-File.write(file_path, hash.to_yaml)
+file.close
+binding.pry
+# File.write(file_path, hash.to_yaml)
 
 puts file_path + " successfully generated."
