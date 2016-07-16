@@ -33,12 +33,12 @@ class MyPlace < GeoPlanet::Place
 end
 
 def get_children_tree(place, parent)
-  place.parent = parent ? parent.woeid : nil
   children = place.children(PLACE_ATTR)
 
   yield place if block_given?
 
   children.each do |c|
+    c.parent = parent ? parent.woeid : nil
     get_children_tree(c, place) {|place| yield place if block_given?}
   end
 end
