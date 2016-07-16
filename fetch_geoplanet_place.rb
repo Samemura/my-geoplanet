@@ -25,21 +25,19 @@ class MyPlace < GeoPlanet::Place
   end
 
   def children(*args)
-    p "do children"
     # @children ||= super(*args).map {|c| c.parent = self.woeid}
-    children = super(*args)
-    @children = children.map {|c| [c.woeid, c] }.to_h
+    children = super(*args) || []
+    @children = children.map {|c| [c.woeid, nil] }.to_h
     return children
   end
 end
 
 def get_children_tree(place, parent)
-  place.children
   place.parent = parent ? parent.woeid : nil
+  children = place.children(PLACE_ATTR)
 
   yield place if block_given?
 
-  children = place.children(PLACE_ATTR) || []
   children.each do |c|
     get_children_tree(c, place) {|place| yield place if block_given?}
   end
@@ -50,7 +48,6 @@ GeoPlanet.appid = APPID
 GeoPlanet.debug = debug_mode
 
 place = MyPlace.new(place_woeid, [PLACE_ATTR.assoc(:lang), PLACE_ATTR.assoc(:select)].to_h )
-binding.pry
 
 array_hash = {}
 $place_num = 1
@@ -60,6 +57,7 @@ get_children_tree(place, nil) { |place|
   $place_num += 1
 }
 
+binding.pry
 file_path = Dir.pwd + "/" + file_name
 File.write(file_path, array_hash.to_yaml)
 
