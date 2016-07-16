@@ -7,8 +7,8 @@ APPID = ENV['GEOPLANET_APPID']
 PLACE_ATTR = {
   lang: 'ja',
   count: 0,
-  type: [7, 8, 9],
-  select: 'long',
+  type: [8,12],
+  select: 'long'
 }
 JAPAN_WOEID = 23424856
 
@@ -18,18 +18,36 @@ file_name = (ARGV[1] || "geoplanet.yml")
 debug_mode = (ARGV[2] || false)
 
 # method
-module GeoPlanet
-  class Place
-    def to_hash(parent)
-      hash = {
-        self.woeid => {
-          parent: parent ? parent.woeid : nil,
-          children: {}
-        }
+class GeoPlanet::Place
+  def self.get_then_parse(url)
+    results = JSON.parse get(url).to_s
+    return results['places']['place'].map{|attrs| self.new attrs} if results['places']
+    return self.new(results['place']) if results['place']
+    nil
+  rescue
+    nil
+  end
+
+  def children(options = {})
+    self.class.send("children_of", self.woeid, options)
+  end
+end
+
+class MyPlace < GeoPlanet::Place
+  def to_hash(parent)
+    hash = {
+      self.woeid => {
+        parent: parent ? parent.woeid : nil,
+        children: {}
       }
-      hash[self.woeid].merge! Hash[instance_variables.map {|i| [i.to_s.sub("@", ""), instance_variable_get(i)] }]
-      return hash
-    end
+    }
+    hash[self.woeid].merge! Hash[instance_variables.map {|i| [i.to_s.sub("@", ""), instance_variable_get(i)] }]
+    return hash
+  end
+
+  def children(*args)
+    p "do children"
+    @children ||= super(*args)
   end
 end
 
@@ -50,7 +68,8 @@ end
 GeoPlanet.appid = APPID
 GeoPlanet.debug = debug_mode
 
-place = GeoPlanet::Place.new(place_woeid, lang:'ja')
+place = MyPlace.new(place_woeid, [PLACE_ATTR.assoc(:lang), PLACE_ATTR.assoc(:select)].to_h )
+binding.pry
 
 array_hash = {}
 tree_hash = {}
