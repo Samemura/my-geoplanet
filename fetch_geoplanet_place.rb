@@ -20,12 +20,8 @@ debug_mode = (ARGV[2] || false)
 class MyPlace < GeoPlanet::Place
   attr_accessor :parent, :chidlren
 
-  def to_h(parent)
-    {
-      self.woeid => Hash[instance_variables.map {|i| [i.to_s.sub("@", ""), instance_variable_get(i)] }]
-    }
-    # hash[self.woeid].merge! Hash[instance_variables.map {|i| [i.to_s.sub("@", ""), instance_variable_get(i)] }]
-    # return hash
+  def to_h
+    { self.woeid => Hash[instance_variables.map {|i| [i.to_s.sub("@", ""), instance_variable_get(i)] }] }
   end
 
   def children(*args)
@@ -37,21 +33,15 @@ class MyPlace < GeoPlanet::Place
   end
 end
 
-def get_children_tree(place, parent, _array, _tree)
-  yield place if block_given?
-
+def get_children_tree(place, parent)
   place.children
   place.parent = parent ? parent.woeid : nil
-  hash = place.to_h(parent)
 
-  binding.pry
-
-  _array.merge!(hash)
-  _tree.merge!(hash)
+  yield place if block_given?
 
   children = place.children(PLACE_ATTR) || []
   children.each do |c|
-    get_children_tree(c, place, _array, _tree[place.woeid]["children"]) {|place| yield place if block_given?}
+    get_children_tree(c, place) {|place| yield place if block_given?}
   end
 end
 
@@ -63,11 +53,11 @@ place = MyPlace.new(place_woeid, [PLACE_ATTR.assoc(:lang), PLACE_ATTR.assoc(:sel
 binding.pry
 
 array_hash = {}
-tree_hash = {}
-$place_num = 0
-get_children_tree(place, nil, array_hash, tree_hash) { |place|
-  $place_num += 1
+$place_num = 1
+get_children_tree(place, nil) { |place|
   puts "fetching (" + $place_num.to_s + "): " + place.name + ", " + place.placetype
+  array_hash.merge!(place.to_h)
+  $place_num += 1
 }
 
 file_path = Dir.pwd + "/" + file_name
