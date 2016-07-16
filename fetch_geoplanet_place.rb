@@ -29,10 +29,17 @@ class MyPlace < GeoPlanet::Place
   end
 
   def children(*args)
-    @children ||= (super(*args) || []).map {|c|
-      c.parent = self.woeid
-      [c.woeid, c]
-    }.to_h
+    arr = (super(*args) || [])
+    out = []
+    (0..arr.length-1).each do |i|
+      arr[i].parent = self.woeid
+      out += {arr[i].woeid, arr[i]}
+    end
+    @children = out
+    # @children = .map {|c|
+    #   c.parent = self.woeid
+    #   [c.woeid, c]
+    # }.to_h
   end
 
   def get_descendants
