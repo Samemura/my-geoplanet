@@ -34,7 +34,10 @@ class GeoPlanet::Place
 end
 
 class MyPlace < GeoPlanet::Place
-  def to_hash(parent)
+  attr_accessor :parent, :chidlren
+
+  def to_h(parent)
+    binding.pry
     hash = {
       self.woeid => {
         parent: parent ? parent.woeid : nil,
@@ -47,14 +50,14 @@ class MyPlace < GeoPlanet::Place
 
   def children(*args)
     p "do children"
-    @children ||= super(*args)
+    @children ||= super(*args).map {|c| c.parent = self; return c}
   end
 end
 
 def get_children_tree(place, parent, _array, _tree)
   yield place if block_given?
 
-  hash = place.to_hash(parent)
+  hash = place.to_h(parent)
   _array.merge!(hash)
   _tree.merge!(hash)
 
