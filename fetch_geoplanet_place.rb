@@ -29,15 +29,15 @@ class MyPlace < GeoPlanet::Place
     @children = children.map {|c| [c.woeid, nil] }.to_h
     return children
   end
-end
 
-def get_children_tree(place)
-  children = place.fetch_children(PLACE_FILTER)
+  def get_children_tree
+    children = self.fetch_children(PLACE_FILTER)
 
-  yield place if block_given?
+    yield self if block_given?
 
-  children.each do |c|
-    get_children_tree(c) {|place| yield place if block_given?}
+    children.each do |c|
+      c.get_children_tree {|place| yield place if block_given?}
+    end
   end
 end
 
@@ -45,11 +45,11 @@ end
 GeoPlanet.appid = APPID
 GeoPlanet.debug = debug_mode
 
-place = MyPlace.new(place_woeid, [PLACE_FILTER.assoc(:lang), PLACE_FILTER.assoc(:select)].to_h )
+root_place = MyPlace.new(place_woeid, [PLACE_FILTER.assoc(:lang), PLACE_FILTER.assoc(:select)].to_h )
 
 array_hash = {}
 $place_num = 1
-get_children_tree(place) { |place|
+root_place.get_children_tree { |place|
   puts "fetching (" + $place_num.to_s + "): " + place.name + ", " + place.placetype
   array_hash.merge!(place.to_h)
   $place_num += 1
