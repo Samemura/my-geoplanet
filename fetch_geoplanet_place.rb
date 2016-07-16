@@ -17,31 +17,30 @@ place_woeid = (ARGV[0] || JAPAN_WOEID).to_i
 file_name = (ARGV[1] || "geoplanet.yml")
 debug_mode = (ARGV[2] || false)
 
-class MyPlace < GeoPlanet::Place
+class MyGeoPlanetPlace < GeoPlanet::Place
   class << self
     attr_accessor :place_filter
   end
 
-  attr_accessor :parent, :chidlren
+  attr_accessor :parent, :chidlren, :hash
 
   def to_h
-    { self.woeid => Hash[instance_variables.map {|i| [i.to_s.sub("@", ""), instance_variable_get(i)] }] }
+    @hash ||= { self.woeid => Hash[instance_variables.map {|i| [i.to_s.sub("@", ""), instance_variable_get(i)] }] }
   end
 
   def children(*args)
     (super(*args) || []).map {|c| c.parent = self.woeid; c }
   end
 
-  def get_descendants
-    @children = []
+  def descendants
+    @children = {}
     self.children(self.class.place_filter).each do |c|
       if c
-        @children.push(c.woeid)
-        c.get_descendants {|place| yield place if block_given?}
+        @children.merge!(c.to_h)
+        c.descendants {|place| yield place if block_given?}
       end
     end
-
-    yield self if block_given?
+    yield self.to_h if block_given?
   end
 end
 
@@ -49,14 +48,17 @@ end
 GeoPlanet.appid = APPID
 GeoPlanet.debug = debug_mode
 
-MyPlace.place_filter = PLACE_FILTER
-root_place = MyPlace.new(place_woeid, [PLACE_FILTER.assoc(:lang), PLACE_FILTER.assoc(:select)].to_h )
+MyGeoPlanetPlace.place_filter = PLACE_FILTER
+root_place = MyGeoPlanetPlace.new(
+  place_woeid,
+  [PLACE_FILTER.assoc(:lang), PLACE_FILTER.assoc(:select)].to_h
+)
 
 hash = {}
 $place_num = 1
-root_place.get_descendants { |place|
-  puts "fetching (" + $place_num.to_s + "): " + place.name + ", " + place.placetype
-  hash.merge!(place.to_h)
+root_place.descendants { |place_hash|
+  puts "fetching (" + $place_num.to_s + "): " + place_hash.values.first["name"] + ", " + place_hash.values.first["placetype"]
+  hash.merge!(place_hash)
   $place_num += 1
 }
 
