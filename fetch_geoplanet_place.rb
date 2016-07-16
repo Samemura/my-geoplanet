@@ -18,6 +18,10 @@ file_name = (ARGV[1] || "geoplanet.yml")
 debug_mode = (ARGV[2] || false)
 
 class MyPlace < GeoPlanet::Place
+  class << self
+    attr_accessor :place_filter
+  end
+
   attr_accessor :parent, :chidlren
 
   def to_h
@@ -29,7 +33,7 @@ class MyPlace < GeoPlanet::Place
   end
 
   def get_descendants
-    children = self.children(PLACE_FILTER)
+    children = self.children(self.class.place_filter)
     @children = children.map {|c| [c.woeid, nil] }.to_h
     children.each do |c|
       c.get_descendants {|place| yield place if block_given?}
@@ -43,6 +47,7 @@ end
 GeoPlanet.appid = APPID
 GeoPlanet.debug = debug_mode
 
+MyPlace.place_filter = PLACE_FILTER
 root_place = MyPlace.new(place_woeid, [PLACE_FILTER.assoc(:lang), PLACE_FILTER.assoc(:select)].to_h )
 
 hash = {}
