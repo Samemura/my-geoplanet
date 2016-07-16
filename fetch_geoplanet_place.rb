@@ -4,7 +4,7 @@ require 'pry'
 
 # Constant
 APPID = ENV['GEOPLANET_APPID']
-PLACE_ATTR = {
+PLACE_FILTER = {
   lang: 'ja',
   count: 0,
   type: [8,12],
@@ -24,22 +24,20 @@ class MyPlace < GeoPlanet::Place
     { self.woeid => Hash[instance_variables.map {|i| [i.to_s.sub("@", ""), instance_variable_get(i)] }] }
   end
 
-  def children(*args)
-    # @children ||= super(*args).map {|c| c.parent = self.woeid}
-    children = super(*args) || []
+  def fetch_children(*args)
+    children = (self.children(*args) || []).map{|c| c.parent = self.woeid; c}
     @children = children.map {|c| [c.woeid, nil] }.to_h
     return children
   end
 end
 
-def get_children_tree(place, parent)
-  children = place.children(PLACE_ATTR)
+def get_children_tree(place)
+  children = place.fetch_children(PLACE_FILTER)
 
   yield place if block_given?
 
   children.each do |c|
-    c.parent = parent ? parent.woeid : nil
-    get_children_tree(c, place) {|place| yield place if block_given?}
+    get_children_tree(c) {|place| yield place if block_given?}
   end
 end
 
@@ -47,11 +45,11 @@ end
 GeoPlanet.appid = APPID
 GeoPlanet.debug = debug_mode
 
-place = MyPlace.new(place_woeid, [PLACE_ATTR.assoc(:lang), PLACE_ATTR.assoc(:select)].to_h )
+place = MyPlace.new(place_woeid, [PLACE_FILTER.assoc(:lang), PLACE_FILTER.assoc(:select)].to_h )
 
 array_hash = {}
 $place_num = 1
-get_children_tree(place, nil) { |place|
+get_children_tree(place) { |place|
   puts "fetching (" + $place_num.to_s + "): " + place.name + ", " + place.placetype
   array_hash.merge!(place.to_h)
   $place_num += 1
