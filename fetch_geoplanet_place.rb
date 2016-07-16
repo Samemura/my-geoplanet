@@ -29,22 +29,16 @@ class MyPlace < GeoPlanet::Place
   end
 
   def children(*args)
-    arr = (super(*args) || [])
-    out = []
-    (0..arr.length-1).each do |i|
-      arr[i].parent = self.woeid
-      out += {arr[i].woeid, arr[i]}
-    end
-    @children = out
-    # @children = .map {|c|
-    #   c.parent = self.woeid
-    #   [c.woeid, c]
-    # }.to_h
+    (super(*args) || []).map {|c| c.parent = self.woeid; c }
   end
 
   def get_descendants
-    self.children(self.class.place_filter).each do |key, val|
-      val.get_descendants {|place| yield place if block_given?} if val
+    @children = []
+    self.children(self.class.place_filter).each do |c|
+      if c
+        @children.push(c.woeid)
+        c.get_descendants {|place| yield place if block_given?}
+      end
     end
 
     yield self if block_given?
