@@ -142,3 +142,51 @@ Response:
   "count":25,
   "total":25}}
 </pre>
+
+### Example response
+<pre>
+{
+"place":{
+  "woeid":2507854,
+  "placeTypeName":"Town",
+  "placeTypeName attrs":{
+    "code":7 },
+  "name":"Trenton",
+  "country":"United States",
+  "country attrs":{
+    "type":"Country",
+    "code":"US",
+    "woeid":23424977 },
+  "admin1":"New Jersey",
+  "admin1 attrs":{
+    "type":"State",
+    "code":"US-NJ",
+    "woeid":2347589 },
+  "admin2":"Mercer",
+  "admin2 attrs":{
+    "type":"County",
+    "code":"",
+    "woeid":12589268 },
+  "admin3":"",
+  "locality1":"Trenton",
+  "locality1 attrs":{
+    "type":"Town",
+    "woeid":2507854 },
+  "locality2":"",
+  "postal":"",
+  "centroid":{
+    "latitude":40.217869,
+    "longitude":-74.759377 },
+  "boundingBox":{
+    "southWest":{
+      "latitude":40.183868,
+      "longitude":-74.819519 },
+    "northEast":{
+      "latitude":40.248291,
+      "longitude":-74.728798 } },
+  "areaRank":3,
+  "popRank":11,
+  "uri":"http:\/\/where.yahooapis.com\/v1\/place\/2507854",
+  "lang":"en-us" }
+}
+</pre>
