@@ -1,14 +1,15 @@
 require 'geoplanet'
+require './lib/my_geoplanet_place'
 require 'yaml'
 require 'pry'
 
 # Constant
 APPID = ENV['GEOPLANET_APPID']
-PLACE_ATTR = {
+PLACE_FILTER = {
   lang: 'ja',
   count: 0,
-  type: [7, 8, 9],
-  select: 'long',
+  type: [7, 8, 9, 12],
+  select: 'long'
 }
 JAPAN_WOEID = 23424856
 
@@ -16,51 +17,26 @@ JAPAN_WOEID = 23424856
 place_woeid = (ARGV[0] || JAPAN_WOEID).to_i
 file_name = (ARGV[1] || "geoplanet.yml")
 debug_mode = (ARGV[2] || false)
+file_path = Dir.pwd + "/" + file_name
 
-# method
-module GeoPlanet
-  class Place
-    def to_hash(parent)
-      hash = {
-        self.woeid => {
-          parent: parent ? parent.woeid : nil,
-          children: {}
-        }
-      }
-      hash[self.woeid].merge! Hash[instance_variables.map {|i| [i.to_s.sub("@", ""), instance_variable_get(i)] }]
-      return hash
-    end
-  end
-end
-
-def get_children_tree(place, parent, _array, _tree)
-  yield place if block_given?
-
-  hash = place.to_hash(parent)
-  _array.merge!(hash)
-  _tree.merge!(hash)
-
-  children = place.children(PLACE_ATTR) || []
-  children.each do |c|
-    get_children_tree(c, place, _array, _tree[place.woeid][:children]) {|place| yield place if block_given?}
-  end
-end
 
 # main
 GeoPlanet.appid = APPID
 GeoPlanet.debug = debug_mode
 
-place = GeoPlanet::Place.new(place_woeid, lang:'ja')
+MyGeoPlanetPlace.place_filter = PLACE_FILTER
+root_place = MyGeoPlanetPlace.new(
+  place_woeid,
+  [PLACE_FILTER.assoc(:lang), PLACE_FILTER.assoc(:select)].to_h
+)
 
-array_hash = {}
-tree_hash = {}
-$place_num = 0
-get_children_tree(place, nil, array_hash, tree_hash) { |place|
+hash = {}
+$place_num = 1
+root_place.descendants { |place_hash|
+  puts "fetching (" + $place_num.to_s + "): " + place_hash.values.first["name"] + ", " + place_hash.values.first["placetype"]
+  hash.merge!(place_hash)
   $place_num += 1
-  puts "fetching (" + $place_num.to_s + "): " + place.name + ", " + place.placetype
 }
 
-file_path = Dir.pwd + "/" + file_name
-File.write(file_path, array_hash.to_yaml)
-
+File.write(file_path, hash.to_yaml)
 puts file_path + " successfully generated."
